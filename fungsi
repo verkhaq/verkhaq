@@ -1,0 +1,136 @@
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+using namespace std;
+
+const int MAKS = 100;
+
+struct Mahasiswa {
+    string nim, nama, kelas;
+    float uts, uas, akhir;
+    string status;
+};
+
+Mahasiswa data[MAKS];
+int jumlahData = 0;
+
+float hitungNilaiAkhir(float uts, float uas) {
+    return (uts + uas) / 2;
+}
+
+string cekKelulusan(float nilai) {
+    return (nilai >= 60) ? "LULUS" : "TIDAK LULUS";
+}
+
+void tambahData() {
+    cout << "Jumlah mahasiswa yang ingin ditambahkan: ";
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        cout << "\nData ke-" << (jumlahData + 1) << ":\n";
+        cout << "NIM    : "; cin >> data[jumlahData].nim;
+        cout << "Nama   : "; cin.ignore(); getline(cin, data[jumlahData].nama);
+        cout << "Kelas  : "; getline(cin, data[jumlahData].kelas);
+        cout << "Nilai UTS : "; cin >> data[jumlahData].uts;
+        cout << "Nilai UAS : "; cin >> data[jumlahData].uas;
+
+        data[jumlahData].akhir = hitungNilaiAkhir(data[jumlahData].uts, data[jumlahData].uas);
+        data[jumlahData].status = cekKelulusan(data[jumlahData].akhir);
+        jumlahData++;
+    }
+}
+
+void tampilkanData() {
+    cout << left << setw(10) << "NIM" << setw(20) << "Nama" << setw(8) << "Kelas"
+         << setw(8) << "UTS" << setw(8) << "UAS" << setw(8) << "Akhir" << "Status\n";
+    for (int i = 0; i < jumlahData; i++) {
+        cout << left << setw(10) << data[i].nim
+             << setw(20) << data[i].nama
+             << setw(8) << data[i].kelas
+             << setw(8) << data[i].uts
+             << setw(8) << data[i].uas
+             << setw(8) << data[i].akhir
+             << data[i].status << endl;
+    }
+}
+
+void simpanKeFile() {
+    ofstream file("data_mahasiswa.txt");
+    file << left << setw(10) << "NIM" << setw(20) << "Nama" << setw(8) << "Kelas"
+         << setw(8) << "UTS" << setw(8) << "UAS" << setw(8) << "Akhir" << "Status\n";
+    for (int i = 0; i < jumlahData; i++) {
+        file << left << setw(10) << data[i].nim
+             << setw(20) << data[i].nama
+             << setw(8) << data[i].kelas
+             << setw(8) << data[i].uts
+             << setw(8) << data[i].uas
+             << setw(8) << data[i].akhir
+             << data[i].status << endl;
+    }
+    file.close();
+    cout << "Data berhasil disimpan ke 'data_mahasiswa.txt'\n";
+}
+
+void cariNIM(string nimCari) {
+    bool ketemu = false;
+    for (int i = 0; i < jumlahData; i++) {
+        if (data[i].nim == nimCari) {
+            cout << "\nData ditemukan:\n";
+            cout << "Nama: " << data[i].nama << ", Kelas: " << data[i].kelas
+                 << ", Nilai Akhir: " << data[i].akhir
+                 << ", Status: " << data[i].status << endl;
+            ketemu = true;
+            break;
+        }
+    }
+    if (!ketemu) cout << "Data dengan NIM tersebut tidak ditemukan.\n";
+}
+
+void urutkan(bool ascending) {
+    for (int i = 0; i < jumlahData - 1; i++) {
+        for (int j = i + 1; j < jumlahData; j++) {
+            if ((ascending && data[i].akhir > data[j].akhir) ||
+                (!ascending && data[i].akhir < data[j].akhir)) {
+                swap(data[i], data[j]);
+            }
+        }
+    }
+    cout << "Data berhasil diurutkan!\n";
+}
+
+int main() {
+    int pilihan;
+    string nimInput;
+
+    do {
+        cout << "\n=== MENU PROGRAM MAHASISWA ===\n";
+        cout << "1. Tambah Data\n";
+        cout << "2. Tampilkan Data\n";
+        cout << "3. Simpan ke File\n";
+        cout << "4. Cari Data (NIM)\n";
+        cout << "5. Urutkan Nilai (Terkecil ke Terbesar)\n";
+        cout << "6. Urutkan Nilai (Terbesar ke Terkecil)\n";
+        cout << "0. Keluar\n";
+        cout << "Pilihan: ";
+        cin >> pilihan;
+
+        switch (pilihan) {
+            case 1: tambahData(); break;
+            case 2: tampilkanData(); break;
+            case 3: simpanKeFile(); break;
+            case 4:
+                cout << "Masukkan NIM yang dicari: ";
+                cin >> nimInput;
+                cariNIM(nimInput);
+                break;
+            case 5: urutkan(true); break;
+            case 6: urutkan(false); break;
+            case 0: cout << "Program selesai.\n"; break;
+            default: cout << "Pilihan tidak valid!\n";
+        }
+
+    } while (pilihan != 0);
+
+    return 0;
+}
